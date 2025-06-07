@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>随机图片</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            color: white;
+            font-family: Arial, sans-serif;
+        }
+        img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            animation: fadeIn 1s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        #error-message {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            padding: 20px;
+            background-color: rgba(0, 0, 0, 0.7);
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body>
+    <img id="random-image" src="" alt="随机图片">
+    <div id="error-message" style="display: none;">
+        <h2>图片加载失败</h2>
+        <p id="error-details"></p>
+    </div>
+
+    <script>
+        // 图片链接列表
+        const images = [
+            "https://raw.githubusercontent.com/vic0308/pic/bc4d4dbc24bc64622a4fe5b19ce4a24c80b7bfc6/1cb8dcd376b6d2b90d085043d67fa81.jpg",
+            "https://raw.githubusercontent.com/vic0308/pic/bc4d4dbc24bc64622a4fe5b19ce4a24c80b7bfc6/f5f8cd7866e46ce4cc6c4291818d515.jpg",
+            "https://raw.githubusercontent.com/vic0308/pic/bc4d4dbc24bc64622a4fe5b19ce4a24c80b7bfc6/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20250607105849.jpg"
+        ];
+
+        // 随机选择图片
+        const randomIndex = Math.floor(Math.random() * images.length);
+        const randomImage = document.getElementById('random-image');
+        const errorMessage = document.getElementById('error-message');
+        const errorDetails = document.getElementById('error-details');
+
+        // 尝试加载图片
+        function loadImage() {
+            console.log('尝试加载图片:', images[randomIndex]);
+            randomImage.src = images[randomIndex] + '?v=' + Date.now();
+            
+            // 超时处理（防止无限等待）
+            const timeoutId = setTimeout(() => {
+                handleError('加载超时，请检查网络连接或图片链接');
+            }, 10000); // 10秒超时
+            
+            randomImage.onload = function() {
+                clearTimeout(timeoutId);
+                console.log('图片加载成功');
+                randomImage.style.opacity = 1;
+                errorMessage.style.display = 'none';
+            };
+            
+            randomImage.onerror = function() {
+                clearTimeout(timeoutId);
+                handleError('图片加载失败，请检查链接是否有效');
+            };
+        }
+
+        // 处理错误
+        function handleError(message) {
+            console.error(message, images[randomIndex]);
+            errorDetails.textContent = `${message}\n${images[randomIndex]}`;
+            errorMessage.style.display = 'block';
+            randomImage.style.display = 'none';
+            
+            // 显示备选图片
+            randomImage.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 600'%3E%3Crect width='100%25' height='100%25' fill='%23333'/%3E%3Ctext x='400' y='300' font-family='Arial' font-size='24' text-anchor='middle' fill='white'%3E图片加载失败%3C/text%3E%3C/svg%3E";
+        }
+
+        // 初始化加载
+        loadImage();
+    </script>
+</body>
+</html>
